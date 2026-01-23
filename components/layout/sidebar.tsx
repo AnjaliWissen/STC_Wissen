@@ -11,7 +11,8 @@ import {
   FileText,
   Settings,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Wrench
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
@@ -51,6 +52,11 @@ const navItems = [
     title: 'Settings',
     href: '/settings',
     icon: Settings,
+  },
+  {
+    title: 'System Settings',
+    href: '/system-settings',
+    icon: Wrench,
   },
 ];
 

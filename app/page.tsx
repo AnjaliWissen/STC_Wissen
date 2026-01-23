@@ -5,6 +5,7 @@ import { TPSChart } from '@/components/dashboard/tps-chart';
 import { LatencyChart } from '@/components/dashboard/latency-chart';
 import { ResourceUtilization } from '@/components/dashboard/resource-utilization';
 import { FXRatesWidget } from '@/components/dashboard/fx-rates-widget';
+import { PositionWidget } from '@/components/dashboard/position-widget';
 
 export default function Dashboard() {
   return (
@@ -27,8 +28,11 @@ export default function Dashboard() {
         <TPSChart />
         <LatencyChart />
       </div>
+      
 
       <ResourceUtilization />
+
+      <PositionWidget />
     </div>
   );
 }
