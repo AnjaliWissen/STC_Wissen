@@ -19,6 +19,7 @@ import { Badge } from '@/components/ui/badge';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
+import { Layers  } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 const navItems = [
@@ -33,9 +34,9 @@ const navItems = [
     icon: Activity,
   },
   {
-    title: 'FX & Liquidity',
+    title: 'Position Summary',
     href: '/fx-liquidity',
-    icon: ArrowLeftRight,
+    icon: Layers ,
   },
   {
     title: 'Alerts',

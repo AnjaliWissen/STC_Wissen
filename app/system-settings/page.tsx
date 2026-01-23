@@ -490,34 +490,29 @@ export default function SystemSettingsPage() {
 
   /* -------------------- TOGGLE LOGIC (XOR RULE) -------------------- */
   const toggleAutoEOD = (enabled: boolean) => {
-    setFormData((prev) =>
-      prev
-        ? {
-            ...prev,
-            autoEOD: { ...prev.autoEOD, enabled },
-            autoStellar: {
-              ...prev.autoStellar,
-              enabled: enabled ? false : prev.autoStellar.enabled,
-            },
-          }
-        : prev
-    );
-  };
+  setFormData((prev) =>
+    prev
+      ? {
+          ...prev,
+          autoEOD: { ...prev.autoEOD, enabled },
+          autoStellar: { ...prev.autoStellar, enabled: !enabled },
+        }
+      : prev
+  );
+};
 
-  const toggleAutoStellar = (enabled: boolean) => {
-    setFormData((prev) =>
-      prev
-        ? {
-            ...prev,
-            autoStellar: { ...prev.autoStellar, enabled },
-            autoEOD: {
-              ...prev.autoEOD,
-              enabled: enabled ? false : prev.autoEOD.enabled,
-            },
-          }
-        : prev
-    );
-  };
+const toggleAutoStellar = (enabled: boolean) => {
+  setFormData((prev) =>
+    prev
+      ? {
+          ...prev,
+          autoStellar: { ...prev.autoStellar, enabled },
+          autoEOD: { ...prev.autoEOD, enabled: !enabled },
+        }
+      : prev
+  );
+};
+
 
   if (isLoading || !formData) {
     return (
@@ -546,71 +541,68 @@ export default function SystemSettingsPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* AUTO EOD */}
-        <Card className="bg-gradient-to-br from-white to-blue-50/30 dark:from-gray-800 dark:to-blue-900/10">
+       <Card>
+  <CardHeader>
+    <CardTitle>Auto EOD</CardTitle>
+  </CardHeader>
 
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5 text-blue-600" />
-              Auto EOD
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex justify-between">
-              <Label>Enable Auto EOD</Label>
-              <Switch
-                checked={formData.autoEOD.enabled}
-                onCheckedChange={toggleAutoEOD}
-              />
-            </div>
+  <CardContent className="space-y-4">
+    <div className="flex justify-between items-center">
+      <Label>Enable Auto EOD</Label>
+      <Switch
+        checked={formData.autoEOD.enabled}
+        disabled={formData.autoStellar.enabled}
+        onCheckedChange={toggleAutoEOD}
+      />
+    </div>
 
-            <Input
-              type="time"
-              value={formData.autoEOD.time}
-              disabled={!formData.autoEOD.enabled}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  autoEOD: { ...formData.autoEOD, time: e.target.value },
-                })
-              }
-            />
-          </CardContent>
-        </Card>
+    <Input
+      type="time"
+      value={formData.autoEOD.time}
+      disabled={!formData.autoEOD.enabled}
+      onChange={(e) =>
+        setFormData({
+          ...formData,
+          autoEOD: { ...formData.autoEOD, time: e.target.value },
+        })
+      }
+    />
+  </CardContent>
+</Card>
 
         {/* AUTO STELLAR */}
-        <Card className="bg-gradient-to-br from-white to-green-50/30 dark:from-gray-800 dark:to-green-900/10">
+       <Card>
+  <CardHeader>
+    <CardTitle>Auto Stellar</CardTitle>
+  </CardHeader>
 
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-green-600" />
-              Auto Stellar
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex justify-between">
-              <Label>Enable Auto Stellar</Label>
-              <Switch
-                checked={formData.autoStellar.enabled}
-                onCheckedChange={toggleAutoStellar}
-              />
-            </div>
+  <CardContent className="space-y-4">
+    <div className="flex justify-between items-center">
+      <Label>Enable Auto Stellar</Label>
+      <Switch
+        checked={formData.autoStellar.enabled}
+        disabled={formData.autoEOD.enabled}
+        onCheckedChange={toggleAutoStellar}
+      />
+    </div>
 
-            <Input
-              type="number"
-              value={formData.autoStellar.checkInterval}
-              disabled={!formData.autoStellar.enabled}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  autoStellar: {
-                    ...formData.autoStellar,
-                    checkInterval: Number(e.target.value),
-                  },
-                })
-              }
-            />
-          </CardContent>
-        </Card>
+    <Input
+      type="number"
+      value={formData.autoStellar.checkInterval}
+      disabled={!formData.autoStellar.enabled}
+      onChange={(e) =>
+        setFormData({
+          ...formData,
+          autoStellar: {
+            ...formData.autoStellar,
+            checkInterval: Number(e.target.value),
+          },
+        })
+      }
+    />
+  </CardContent>
+</Card>
+
 
         {/* SETTLEMENT RULES */}
         <Card className="bg-gradient-to-br from-white to-purple-50/30 dark:from-gray-800 dark:to-purple-900/10">

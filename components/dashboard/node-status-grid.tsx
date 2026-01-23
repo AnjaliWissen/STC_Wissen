@@ -1,25 +1,102 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
+// import { supabase } from '@/lib/supabase';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Server, Shield, Lock, Activity, Zap, Cpu } from 'lucide-react';
+import { useState } from 'react';
+
+//   TypeScript interfaces for Fabric node status structure
+interface Container {
+  id: string;
+  name: string;
+  image: string;
+  status: string;
+  state: string;
+  uptime: string;
+  ports: string;
+}
+
+interface Stats {
+  name: string;
+  cpu: number;
+  memory: string;
+  memoryPercent: number;
+  network: string;
+  block: string;
+  pids: number;
+}
+
+interface Peer {
+  name: string;
+  port: number;
+  status: string;
+  recentLogs: string[];
+}
+
+interface Orderer {
+  name: string;
+  port: number;
+  status: string;
+  recentLogs: string[];
+}
+
+interface NodeStatusResponse {
+  status: string;
+  timestamp: string;
+  containers: Container[];
+  // stats: Stats[];
+  // peers: Peer[];
+  // orderers: Orderer[];
+}
+
+interface NodeStatusResponse {
+  status: string;
+  timestamp: string;
+  containers: Container[];
+  stats: Stats[];
+}
+
+
+
+const API_ENDPOINT = 'http://ec2-13-202-153-162.ap-south-1.compute.amazonaws.com:3000/api';
 
 export function NodeStatusGrid() {
-  const { data: nodes, isLoading } = useQuery({
+  //   Fetch node data with proper typing and fallback to dummy data
+  const { data: nodes, isLoading } = useQuery<NodeStatusResponse>({
     queryKey: ['fabric-nodes'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('fabric_nodes')
-        .select('*')
-        .order('node_type', { ascending: true });
-
-      if (error) throw error;
-      return data;
+      try {
+        const response = await fetch(`${API_ENDPOINT}/system/health`);
+        if (!response.ok) throw new Error('Failed to fetch nodes');
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.warn('Using dummy data:', error);
+        // return nodeStatusGridExample;
+      }
     },
   });
 
+  const statsMap = new Map(
+  (nodes?.stats ?? []).map(stat => [stat.name, stat])
+);
+
+  //   Helper function to get stats for a container
+  // const getStatsForContainer = (containerName: string): Stats | undefined => {
+  //   return nodes?.stats.find((s) => s.name === containerName);
+  // };
+
+  //   Helper function to determine node type from container image
+  const getNodeTypeFromImage = (image: string): string => {
+    if (image.includes('orderer')) return 'orderer';
+    if (image.includes('peer')) return 'peer';
+    if (image.includes('ca')) return 'ca';
+    return 'unknown';
+  };
+
+  // Helper function to map node type to icon component
   const getNodeIcon = (type: string) => {
     switch (type) {
       case 'peer':
@@ -33,9 +110,11 @@ export function NodeStatusGrid() {
     }
   };
 
-  const getStatusStyles = (status: string) => {
+
+
+  const getStatusColor = (status: string) => {
     switch (status) {
-      case 'online':
+      case 'running':
         return {
           badge: 'success',
           border: 'border-green-200 dark:border-green-800 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-950',
@@ -66,30 +145,51 @@ export function NodeStatusGrid() {
     }
   };
 
+
   if (isLoading) {
     return (
-      <Card className="rounded-lg border bg-card text-card-foreground shadow-sm bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-800 dark:to-gray-900/50">
+      <Card>
         <CardHeader>
-          <CardTitle>Blockchain Node Network</CardTitle>
+          <CardTitle>Node Status</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-8 text-gray-500 dark:text-gray-400">Loading nodes...</div>
+          <div className="text-center py-8 text-gray-500">Loading...</div>
         </CardContent>
       </Card>
     );
   }
 
-  const groupedNodes = {
-    peer: nodes?.filter(n => n.node_type === 'peer') || [],
-    orderer: nodes?.filter(n => n.node_type === 'orderer') || [],
-    ca: nodes?.filter(n => n.node_type === 'ca') || [],
-  };
 
-  const onlineCount = nodes?.filter(n => n.status === 'online').length || 0;
-  const totalCount = nodes?.length || 0;
+
+  const groupedNodeData =
+  nodes?.containers.reduce((acc: Record<string, any[]>, container) => {
+    const nodeType = getNodeTypeFromImage(container.image);
+    if (!acc[nodeType]) acc[nodeType] = [];
+
+    const stats = statsMap.get(container.name);
+
+    acc[nodeType].push({
+      id: container.id,
+      node_name: container.name,
+      host: container.ports,
+      status: container.state,
+      uptime: container.uptime,
+      image: container.image,
+
+      // attach stats safely
+      stats,
+    });
+
+    return acc;
+  }, { peer: [], orderer: [], ca: [] }) || { peer: [], orderer: [], ca: [] };
+
+
+const onlineCount = nodes?.containers?.filter(n => n.state === 'running').length || 0;
+const totalCount = nodes?.containers?.length || 0;
 
   return (
-    <Card className="rounded-lg border bg-card text-card-foreground shadow-sm bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-800 dark:to-gray-900/50">
+    <Card className="p-6 bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-800 dark:to-gray-900/50">
+  
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
@@ -109,9 +209,9 @@ export function NodeStatusGrid() {
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
-          {Object.entries(groupedNodes).map(([type, typeNodes]) => {
+          {Object.entries(groupedNodeData).map(([type, typeNodes]) => {
             const Icon = getNodeIcon(type);
-            const typeOnline = typeNodes.filter(n => n.status === 'online').length;
+            const typeOnline = typeNodes.filter(n => n.status === 'running').length;
 
             return (
               <div key={type}>
@@ -128,9 +228,10 @@ export function NodeStatusGrid() {
                     {typeOnline}/{typeNodes.length} active
                   </span>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4">
+
                   {typeNodes.map((node) => {
-                    const styles = getStatusStyles(node.status);
+                    const styles = getStatusColor(node.status);
 
                     return (
                       <div
@@ -151,9 +252,9 @@ export function NodeStatusGrid() {
                             <div className="font-semibold text-sm text-gray-900 dark:text-gray-100 mb-1">
                               {node.node_name}
                             </div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400 font-mono">
+                            {/* <div className="text-xs text-gray-500 dark:text-gray-400 font-mono">
                               {node.host}
-                            </div>
+                            </div> */}
                           </div>
                         </div>
 
@@ -161,7 +262,37 @@ export function NodeStatusGrid() {
                           <div className="flex items-center gap-2 text-xs">
                             <Cpu className="h-3 w-3 text-gray-400 dark:text-gray-500" />
                             <span className="text-gray-600 dark:text-gray-300">
-                              Block: {node.current_block_height?.toLocaleString() || 'N/A'}
+                              {/* Block: {node.current_block_height?.toLocaleString() || 'N/A'} */}
+                              <div className="space-y-2">
+  <div className="flex items-center gap-2 text-xs">
+    <Cpu className="h-3 w-3 text-gray-400" />
+    <span>
+      CPU: {node.stats?.cpu ?? 0}%
+    </span>
+  </div>
+
+  <div className="flex items-center gap-2 text-xs">
+    <Zap className="h-3 w-3 text-gray-400" />
+    <span>
+      Memory: {node.stats?.memory ?? 'N/A'}
+    </span>
+  </div>
+
+  <div className="flex items-center gap-2 text-xs">
+    <Activity className="h-3 w-3 text-gray-400" />
+    <span>
+      Network: {node.stats?.network ?? 'N/A'}
+    </span>
+  </div>
+
+  <div className="flex items-center gap-2 text-xs">
+    <Server className="h-3 w-3 text-gray-400" />
+    <span>
+      PIDs: {node.stats?.pids ?? 'N/A'}
+    </span>
+  </div>
+</div>
+
                             </span>
                           </div>
 
@@ -183,6 +314,12 @@ export function NodeStatusGrid() {
                             )}
                             {node.status.toUpperCase()}
                           </Badge>
+
+
+
+                        
+
+
                         </div>
                       </div>
                     );
@@ -193,7 +330,7 @@ export function NodeStatusGrid() {
           })}
         </div>
 
-        {nodes && nodes.length === 0 && (
+        {nodes && nodes.containers.length === 0 && (
           <div className="text-center py-12">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 mb-4">
               <Server className="h-8 w-8 text-gray-400 dark:text-gray-500" />
@@ -205,4 +342,7 @@ export function NodeStatusGrid() {
       </CardContent>
     </Card>
   );
+
+ 
+  
 }

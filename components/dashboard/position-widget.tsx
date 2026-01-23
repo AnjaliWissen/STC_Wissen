@@ -303,217 +303,219 @@ interface PositionData {
 }
 
 export function PositionWidget() {
-  const [positionData, setPositionData] = useState<PositionData | null>(null);
-  const [loading, setLoading] = useState(true);
 
-  const fetchPositionData = async () => {
-    try {
-      const res = await fetch(API_URL);
+  return null;
+  // const [positionData, setPositionData] = useState<PositionData | null>(null);
+  // const [loading, setLoading] = useState(true);
 
-      if (!res.ok) {
-        throw new Error('Failed to fetch position data');
-      }
+  // const fetchPositionData = async () => {
+  //   try {
+  //     const res = await fetch(API_URL);
 
-      const json = await res.json();
+  //     if (!res.ok) {
+  //       throw new Error('Failed to fetch position data');
+  //     }
 
-      if (json.success && json.positions) {
-        setPositionData(json.positions);
-      }
-    } catch (error) {
-      console.error('Error fetching position data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     const json = await res.json();
 
-  useEffect(() => {
-    fetchPositionData();
+  //     if (json.success && json.positions) {
+  //       setPositionData(json.positions);
+  //     }
+  //   } catch (error) {
+  //     console.error('Error fetching position data:', error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
-    // Auto refresh every 10 seconds
-    const interval = setInterval(fetchPositionData, 10000);
+  // useEffect(() => {
+  //   fetchPositionData();
 
-    return () => clearInterval(interval);
-  }, []);
+  //   // Auto refresh every 10 seconds
+  //   const interval = setInterval(fetchPositionData, 10000);
 
-  const formatAmount = (amount: number) =>
-    new Intl.NumberFormat('en-US', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(amount);
+  //   return () => clearInterval(interval);
+  // }, []);
 
-  if (loading) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Position Summary</CardTitle>
-          <CardDescription>Loading position data...</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="h-16 bg-gray-100 dark:bg-gray-800 rounded animate-pulse"
-            />
-          ))}
-        </CardContent>
-      </Card>
-    );
-  }
+  // const formatAmount = (amount: number) =>
+  //   new Intl.NumberFormat('en-US', {
+  //     minimumFractionDigits: 2,
+  //     maximumFractionDigits: 2,
+  //   }).format(amount);
 
-  if (!positionData) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Position Summary</CardTitle>
-          <CardDescription>No position data available</CardDescription>
-        </CardHeader>
-      </Card>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <Card>
+  //       <CardHeader>
+  //         <CardTitle>Position Summary</CardTitle>
+  //         <CardDescription>Loading position data...</CardDescription>
+  //       </CardHeader>
+  //       <CardContent className="space-y-4">
+  //         {[1, 2, 3].map((i) => (
+  //           <div
+  //             key={i}
+  //             className="h-16 bg-gray-100 dark:bg-gray-800 rounded animate-pulse"
+  //           />
+  //         ))}
+  //       </CardContent>
+  //     </Card>
+  //   );
+  // }
 
-  return (
-    <Card className="rounded-lg border bg-card text-card-foreground shadow-sm bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-800 dark:to-gray-900/50">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle>Position Summary</CardTitle>
-            <CardDescription className="flex items-center gap-2 mt-1">
-              <Clock className="h-3 w-3" />
-              Updated{' '}
-              {formatDistanceToNow(new Date(positionData.lastUpdated), {
-                addSuffix: true,
-              })}
-            </CardDescription>
-          </div>
-          <Badge variant="outline" className="text-xs">
-            Last Settlement:{' '}
-            {new Date(positionData.lastSettlementTime).toLocaleDateString()}
-          </Badge>
-        </div>
-      </CardHeader>
+  // if (!positionData) {
+  //   return (
+  //     <Card>
+  //       <CardHeader>
+  //         <CardTitle>Position Summary</CardTitle>
+  //         <CardDescription>No position data available</CardDescription>
+  //       </CardHeader>
+  //     </Card>
+  //   );
+  // }
 
-      <CardContent className="space-y-6">
-        {/* Net Positions */}
-        <div className="grid grid-cols-2 gap-4">
-          {Object.entries(positionData.positions).map(
-            ([institution, balance]) => (
-              <div
-                key={institution}
-                className="p-4 rounded-lg border bg-card"
-              >
-                <p className="text-sm font-medium text-muted-foreground">
-                  {institution.replace('_', ' ')}
-                </p>
+  // return (
+  //   <Card className="rounded-lg border bg-card text-card-foreground shadow-sm bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-800 dark:to-gray-900/50">
+  //     <CardHeader>
+  //       <div className="flex items-center justify-between">
+  //         <div>
+  //           <CardTitle>Position Summary</CardTitle>
+  //           <CardDescription className="flex items-center gap-2 mt-1">
+  //             <Clock className="h-3 w-3" />
+  //             Updated{' '}
+  //             {formatDistanceToNow(new Date(positionData.lastUpdated), {
+  //               addSuffix: true,
+  //             })}
+  //           </CardDescription>
+  //         </div>
+  //         <Badge variant="outline" className="text-xs">
+  //           Last Settlement:{' '}
+  //           {new Date(positionData.lastSettlementTime).toLocaleDateString()}
+  //         </Badge>
+  //       </div>
+  //     </CardHeader>
 
-                <div className="flex items-center gap-2 mt-1">
-                  <p
-                    className={`text-2xl font-bold ${
-                      balance >= 0
-                        ? 'text-green-600 dark:text-green-400'
-                        : 'text-red-600 dark:text-red-400'
-                    }`}
-                  >
-                    {balance >= 0 ? '+' : ''}
-                    {formatAmount(balance)}
-                  </p>
+  //     <CardContent className="space-y-6">
+  //       {/* Net Positions */}
+  //       <div className="grid grid-cols-2 gap-4">
+  //         {Object.entries(positionData.positions).map(
+  //           ([institution, balance]) => (
+  //             <div
+  //               key={institution}
+  //               className="p-4 rounded-lg border bg-card"
+  //             >
+  //               <p className="text-sm font-medium text-muted-foreground">
+  //                 {institution.replace('_', ' ')}
+  //               </p>
 
-                  {balance >= 0 ? (
-                    <TrendingUp className="h-5 w-5 text-green-700 dark:text-green-400" />
-                  ) : (
-                    <TrendingDown className="h-5 w-5 text-red-700 dark:text-red-400" />
-                  )}
-                </div>
-              </div>
-            )
-          )}
-        </div>
+  //               <div className="flex items-center gap-2 mt-1">
+  //                 <p
+  //                   className={`text-2xl font-bold ${
+  //                     balance >= 0
+  //                       ? 'text-green-600 dark:text-green-400'
+  //                       : 'text-red-600 dark:text-red-400'
+  //                   }`}
+  //                 >
+  //                   {balance >= 0 ? '+' : ''}
+  //                   {formatAmount(balance)}
+  //                 </p>
 
-        {/* Summary */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {[
-            ['KW Receives', positionData.summary.kwReceives, 'green'],
-            ['KW Owes', positionData.summary.kwOwes, 'red'],
-            ['BH Receives', positionData.summary.bhReceives, 'green'],
-            ['BH Owes', positionData.summary.bhOwes, 'red'],
-          ].map(([label, value, color]) => (
-            <div
-              key={label as string}
-              className={`p-3 rounded-lg border bg-${color}-50 dark:bg-${color}-950/20`}
-            >
-              <p
-                className={`text-xs font-medium text-${color}-700 dark:text-${color}-400`}
-              >
-                {label}
-              </p>
-              <p className="text-lg font-bold mt-1">
-                {formatAmount(value as number)}
-              </p>
-            </div>
-          ))}
-        </div>
+  //                 {balance >= 0 ? (
+  //                   <TrendingUp className="h-5 w-5 text-green-700 dark:text-green-400" />
+  //                 ) : (
+  //                   <TrendingDown className="h-5 w-5 text-red-700 dark:text-red-400" />
+  //                 )}
+  //               </div>
+  //             </div>
+  //           )
+  //         )}
+  //       </div>
 
-        {/* Transactions */}
-        <div>
-          <div className="flex items-center gap-2 mb-3">
-            <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
-            <h3 className="font-semibold text-sm">Transaction Details</h3>
-            <Badge variant="secondary" className="ml-auto">
-              {positionData.details.length} transactions
-            </Badge>
-          </div>
+  //       {/* Summary */}
+  //       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+  //         {[
+  //           ['KW Receives', positionData.summary.kwReceives, 'green'],
+  //           ['KW Owes', positionData.summary.kwOwes, 'red'],
+  //           ['BH Receives', positionData.summary.bhReceives, 'green'],
+  //           ['BH Owes', positionData.summary.bhOwes, 'red'],
+  //         ].map(([label, value, color]) => (
+  //           <div
+  //             key={label as string}
+  //             className={`p-3 rounded-lg border bg-${color}-50 dark:bg-${color}-950/20`}
+  //           >
+  //             <p
+  //               className={`text-xs font-medium text-${color}-700 dark:text-${color}-400`}
+  //             >
+  //               {label}
+  //             </p>
+  //             <p className="text-lg font-bold mt-1">
+  //               {formatAmount(value as number)}
+  //             </p>
+  //           </div>
+  //         ))}
+  //       </div>
 
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>From</TableHead>
-                  <TableHead>To</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Currency</TableHead>
-                  <TableHead>Time</TableHead>
-                  <TableHead>Status</TableHead>
-                </TableRow>
-              </TableHeader>
+  //       {/* Transactions */}
+  //       <div>
+  //         <div className="flex items-center gap-2 mb-3">
+  //           <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
+  //           <h3 className="font-semibold text-sm">Transaction Details</h3>
+  //           <Badge variant="secondary" className="ml-auto">
+  //             {positionData.details.length} transactions
+  //           </Badge>
+  //         </div>
 
-              <TableBody>
-                {positionData.details.length === 0 ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={6}
-                      className="text-center py-8 text-muted-foreground"
-                    >
-                      No transactions found
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  positionData.details.map((tx) => (
-                    <TableRow key={tx.txId}>
-                      <TableCell>{tx.from.replace('_', ' ')}</TableCell>
-                      <TableCell>{tx.to.replace('_', ' ')}</TableCell>
-                      <TableCell className="font-mono">
-                        {formatAmount(tx.amount)}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{tx.currency}</Badge>
-                      </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {new Date(tx.timestamp).toLocaleString()}
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={tx.settled ? 'default' : 'secondary'}
-                        >
-                          {tx.settled ? 'Settled' : 'Pending'}
-                        </Badge>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
+  //         <div className="rounded-md border">
+  //           <Table>
+  //             <TableHeader>
+  //               <TableRow>
+  //                 <TableHead>From</TableHead>
+  //                 <TableHead>To</TableHead>
+  //                 <TableHead>Amount</TableHead>
+  //                 <TableHead>Currency</TableHead>
+  //                 <TableHead>Time</TableHead>
+  //                 <TableHead>Status</TableHead>
+  //               </TableRow>
+  //             </TableHeader>
+
+  //             <TableBody>
+  //               {positionData.details.length === 0 ? (
+  //                 <TableRow>
+  //                   <TableCell
+  //                     colSpan={6}
+  //                     className="text-center py-8 text-muted-foreground"
+  //                   >
+  //                     No transactions found
+  //                   </TableCell>
+  //                 </TableRow>
+  //               ) : (
+  //                 positionData.details.map((tx) => (
+  //                   <TableRow key={tx.txId}>
+  //                     <TableCell>{tx.from.replace('_', ' ')}</TableCell>
+  //                     <TableCell>{tx.to.replace('_', ' ')}</TableCell>
+  //                     <TableCell className="font-mono">
+  //                       {formatAmount(tx.amount)}
+  //                     </TableCell>
+  //                     <TableCell>
+  //                       <Badge variant="outline">{tx.currency}</Badge>
+  //                     </TableCell>
+  //                     <TableCell className="text-sm text-muted-foreground">
+  //                       {new Date(tx.timestamp).toLocaleString()}
+  //                     </TableCell>
+  //                     <TableCell>
+  //                       <Badge
+  //                         variant={tx.settled ? 'default' : 'secondary'}
+  //                       >
+  //                         {tx.settled ? 'Settled' : 'Pending'}
+  //                       </Badge>
+  //                     </TableCell>
+  //                   </TableRow>
+  //                 ))
+  //               )}
+  //             </TableBody>
+  //           </Table>
+  //         </div>
+  //       </div>
+  //     </CardContent>
+  //   </Card>
+  // );
 }
