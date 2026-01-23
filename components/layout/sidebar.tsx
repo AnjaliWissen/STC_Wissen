@@ -42,11 +42,11 @@ const navItems = [
     icon: Bell,
     badge: true,
   },
-  {
-    title: 'Audit Logs',
-    href: '/audit-logs',
-    icon: FileText,
-  },
+  // {
+  //   title: 'Audit Logs',
+  //   href: '/audit-logs',
+  //   icon: FileText,
+  // },
   {
     title: 'Settings',
     href: '/settings',
