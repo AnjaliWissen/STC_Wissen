@@ -228,16 +228,46 @@ const totalCount = nodes?.containers?.length || 0;
                     {typeOnline}/{typeNodes.length} active
                   </span>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4">
+                {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4"> */}
+                <div
+  className="
+    grid
+    grid-cols-1
+    sm:grid-cols-2
+    lg:grid-cols-3
+    gap-4
+    auto-rows-fr
+  "
+>
+
 
                   {typeNodes.map((node) => {
                     const styles = getStatusColor(node.status);
 
                     return (
+                      // <div
+                      //   key={node.id}
+                      //   className={`relative border-2 rounded-xl p-4 transition-all duration-300 hover:scale-105 hover:shadow-lg ${styles.border} ${styles.glow}`}
+                      // >
                       <div
-                        key={node.id}
-                        className={`relative border-2 rounded-xl p-4 transition-all duration-300 hover:scale-105 hover:shadow-lg ${styles.border} ${styles.glow}`}
-                      >
+  key={node.id}
+  className={`
+    relative
+    border-2
+    rounded-xl
+    p-4
+    transition-all
+    duration-300
+    hover:shadow-lg
+    hover:scale-[1.02]
+    sm:hover:scale-105
+    max-w-full
+    overflow-hidden
+    ${styles.border}
+    ${styles.glow}
+  `}
+>
+
                         {styles.pulse && (
                           <div className="absolute -top-1 -right-1">
                             <span className="relative flex h-3 w-3">
@@ -249,9 +279,9 @@ const totalCount = nodes?.containers?.length || 0;
 
                         <div className="flex items-start justify-between mb-3">
                           <div className="flex-1">
-                            <div className="font-semibold text-sm text-gray-900 dark:text-gray-100 mb-1">
-                              {node.node_name}
-                            </div>
+                            <div className="font-semibold text-sm text-gray-900 dark:text-gray-100 mb-1 break-all">
+  {node.node_name}
+</div>
                             {/* <div className="text-xs text-gray-500 dark:text-gray-400 font-mono">
                               {node.host}
                             </div> */}
@@ -259,33 +289,34 @@ const totalCount = nodes?.containers?.length || 0;
                         </div>
 
                         <div className="space-y-2">
-                          <div className="flex items-center gap-2 text-xs">
-                            <Cpu className="h-3 w-3 text-gray-400 dark:text-gray-500" />
+                          <div className="flex items-start gap-2 text-xs break-all">
+                            {/* <Cpu className="h-3 w-3 text-gray-400 dark:text-gray-500" /> */}
                             <span className="text-gray-600 dark:text-gray-300">
                               {/* Block: {node.current_block_height?.toLocaleString() || 'N/A'} */}
                               <div className="space-y-2">
-  <div className="flex items-center gap-2 text-xs">
+  <div className="flex items-start gap-2 text-xs break-all">
     <Cpu className="h-3 w-3 text-gray-400" />
     <span>
       CPU: {node.stats?.cpu ?? 0}%
     </span>
   </div>
 
-  <div className="flex items-center gap-2 text-xs">
+  <div className="flex items-start gap-2 text-xs break-all">
     <Zap className="h-3 w-3 text-gray-400" />
-    <span>
-      Memory: {node.stats?.memory ?? 'N/A'}
-    </span>
+    <span className="break-all">
+  Memory: {node.stats?.memory ?? 'N/A'}
+</span>
+
   </div>
 
-  <div className="flex items-center gap-2 text-xs">
+  <div className="flex items-start gap-2 text-xs break-all">
     <Activity className="h-3 w-3 text-gray-400" />
     <span>
       Network: {node.stats?.network ?? 'N/A'}
     </span>
   </div>
 
-  <div className="flex items-center gap-2 text-xs">
+  <div className="flex items-start gap-2 text-xs break-all">
     <Server className="h-3 w-3 text-gray-400" />
     <span>
       PIDs: {node.stats?.pids ?? 'N/A'}
@@ -296,12 +327,12 @@ const totalCount = nodes?.containers?.length || 0;
                             </span>
                           </div>
 
-                          <div className="flex items-center gap-2 text-xs">
+                          {/* <div className="flex items-start gap-2 text-xs break-all">
                             <Zap className="h-3 w-3 text-gray-400 dark:text-gray-500" />
                             <span className="text-gray-600 dark:text-gray-300">
                               {node.response_time_ms}ms
                             </span>
-                          </div>
+                          </div> */}
                         </div>
 
                         <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">

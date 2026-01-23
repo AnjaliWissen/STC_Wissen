@@ -398,7 +398,7 @@ export default function TransactionsPage() {
                           key={tx.stctx_ext_id}
                           className="cursor-pointer transition-colors border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/80"
                           onClick={() =>
-                            setSelectedTransactionId(tx.stctx_ext_id)
+                            setSelectedTransactionId(tx.id)
                           }
                         >
                           <TableCell className="font-mono text-xs text-gray-900 dark:text-gray-100">
