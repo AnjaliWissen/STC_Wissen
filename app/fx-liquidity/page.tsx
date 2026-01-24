@@ -418,6 +418,16 @@ const getStatusBadge = (status: string) => {
 
   return (
     <div className="px-6 lg:px-8 py-6 space-y-6">
+      
+
+ <div>
+        <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
+          Settlement & Bridge Monitoring
+        </h2>
+        <p className="text-gray-600 dark:text-gray-400 mt-1">
+         Live net positions and Stellar bridge status
+        </p>
+      </div>
     <Card className="rounded-lg border bg-card text-card-foreground shadow-sm bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-800 dark:to-gray-900/50">
       <CardHeader>
         <div className="flex items-center justify-between">

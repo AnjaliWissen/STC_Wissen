@@ -49,11 +49,11 @@ const navItems = [
   //   href: '/audit-logs',
   //   icon: FileText,
   // },
-  {
-    title: 'Settings',
-    href: '/settings',
-    icon: Settings,
-  },
+  // {
+  //   title: 'Settings',
+  //   href: '/settings',
+  //   icon: Settings,
+  // },
   {
     title: 'System Settings',
     href: '/system-settings',

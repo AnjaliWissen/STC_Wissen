@@ -541,7 +541,7 @@ const toggleAutoStellar = (enabled: boolean) => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* AUTO EOD */}
-       <Card>
+       <Card className="bg-gradient-to-br from-white to-purple-50/30 dark:from-gray-800 dark:to-purple-900/10"> 
   <CardHeader>
     <CardTitle>Auto EOD</CardTitle>
   </CardHeader>
@@ -571,7 +571,7 @@ const toggleAutoStellar = (enabled: boolean) => {
 </Card>
 
         {/* AUTO STELLAR */}
-       <Card>
+       <Card className="bg-gradient-to-br from-white to-purple-50/30 dark:from-gray-800 dark:to-purple-900/10">
   <CardHeader>
     <CardTitle>Auto Stellar</CardTitle>
   </CardHeader>

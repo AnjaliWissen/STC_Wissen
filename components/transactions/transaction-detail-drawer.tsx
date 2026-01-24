@@ -11,6 +11,24 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { CheckCircle2, Clock } from 'lucide-react';
 import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
+
+
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case 'completed':
+      return 'success';
+    case 'pending':
+      return 'secondary';
+    case 'processing':
+      return 'outline';
+    case 'failed':
+      return 'destructive';
+    default:
+      return 'secondary';
+  }
+};
+
 
 /* -------------------- Types -------------------- */
 
@@ -74,6 +92,7 @@ export function TransactionDetailDrawer({
 
   const timeline = data?.timeline;
   const metadata = timeline?.metadata;
+ const statusVariant = getStatusColor(timeline?.status ?? 'pending');
 
   const fxStage = timeline?.stages.find(
     (s) => s.stage === 'fx_rate_lock'
@@ -81,8 +100,10 @@ export function TransactionDetailDrawer({
   const conversionStage = timeline?.stages.find(
     (s) => s.stage === 'conversion'
   );
+  
 
   return (
+    
     <Sheet open={open} onOpenChange={onClose}>
       <SheetContent className="w-[600px] sm:max-w-[600px] overflow-y-auto bg-white dark:bg-gray-900 border-l">
         <SheetHeader>
@@ -112,7 +133,18 @@ export function TransactionDetailDrawer({
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span>Status</span>
-                  <Badge>{timeline.status}</Badge>
+                  {/* <Badge>{timeline.status}</Badge>/ */}
+                  <Badge
+  variant={statusVariant === 'success' ? 'default' : statusVariant}
+  className={cn(
+    'capitalize',
+    statusVariant === 'success' &&
+      'bg-green-600 text-white hover:bg-green-600'
+  )}
+>
+  {timeline.status}
+</Badge>
+
                 </div>
 
                 <div className="flex justify-between">
@@ -197,6 +229,7 @@ export function TransactionDetailDrawer({
       const completed = step.status === 'completed';
       const Icon = completed ? CheckCircle2 : Clock;
       const isLast = index === timeline.stages.length - 1;
+      const badgeVariant = getStatusColor(step.status);
 
       return (
         <div key={step.stage} className="flex gap-4">
@@ -235,12 +268,25 @@ export function TransactionDetailDrawer({
               <div className="font-medium">
                 {step.title}
               </div>
-              <Badge
+              {/* <Badge
                 variant={completed ? 'default' : 'secondary'}
                 className="text-xs"
               >
                 {step.status}
-              </Badge>
+              </Badge> */}
+              <Badge
+              variant={
+                badgeVariant === 'success' ? 'default' : badgeVariant
+              }
+              className={cn(
+                'text-xs capitalize',
+                badgeVariant === 'success' &&
+                  'bg-green-600 text-white hover:bg-green-600'
+              )}
+            >
+              {step.status}
+            </Badge>
+
             </div>
 
             <div className="text-xs text-gray-500 mt-1">
