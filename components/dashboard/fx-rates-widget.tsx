@@ -191,6 +191,8 @@ function MiniSparkline({ data, isPositive }: { data: number[]; isPositive: boole
 
 export function FXRatesWidget() {
   const [rates, setRates] = useState<Record<string, FXRateUI>>({});
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+
 
   const fetchRate = async (from: string, to: string, fullName: string) => {
     const res = await fetch(`${BASE_URL}/fx/${from}/${to}`);
@@ -213,6 +215,7 @@ export function FXRatesWidget() {
         },
       };
     });
+    setLastUpdated(new Date().toLocaleTimeString());
   };
 
   useEffect(() => {
@@ -276,7 +279,10 @@ export function FXRatesWidget() {
           <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
           Live data
         </span>
-        <span>Last updated: {new Date().toLocaleTimeString()}</span>
+        {/* <span>Last updated: {new Date().toLocaleTimeString()}</span> */}
+        <span>
+        Last updated: {lastUpdated ?? '—'}
+      </span>
       </div>
     </Card>
   );
