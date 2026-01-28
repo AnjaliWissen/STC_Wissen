@@ -35,7 +35,7 @@ const navItems = [
   },
   {
     title: 'Position Summary',
-    href: '/fx-liquidity',
+    href: '/position-summary',
     icon: Layers ,
   },
   {

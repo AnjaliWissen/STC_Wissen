@@ -262,7 +262,7 @@ const totalCount = nodes?.containers?.length || 0;
     hover:scale-[1.02]
     sm:hover:scale-105
     max-w-full
-    overflow-hidden
+    overflow-visible
     ${styles.border}
     ${styles.glow}
   `}
@@ -294,35 +294,35 @@ const totalCount = nodes?.containers?.length || 0;
                             <span className="text-gray-600 dark:text-gray-300">
                               {/* Block: {node.current_block_height?.toLocaleString() || 'N/A'} */}
                               <div className="space-y-2">
-  <div className="flex items-start gap-2 text-xs break-all">
-    <Cpu className="h-3 w-3 text-gray-400" />
-    <span>
-      CPU: {node.stats?.cpu ?? 0}%
-    </span>
-  </div>
+                                <div className="flex items-start gap-2 text-xs break-all">
+                                  <Cpu className="h-3 w-3 text-gray-400" />
+                                  <span>
+                                    CPU: {node.stats?.cpu ?? 0}%
+                                  </span>
+                                </div>
 
-  <div className="flex items-start gap-2 text-xs break-all">
-    <Zap className="h-3 w-3 text-gray-400" />
-    <span className="break-all">
-  Memory: {node.stats?.memory ?? 'N/A'}
-</span>
+                                <div className="flex items-start gap-2 text-xs break-all">
+                                  <Zap className="h-3 w-3 text-gray-400" />
+                                  <span className="break-all">
+                                Memory: {node.stats?.memory ?? 'N/A'}
+                              </span>
 
-  </div>
+                                </div>
 
-  <div className="flex items-start gap-2 text-xs break-all">
-    <Activity className="h-3 w-3 text-gray-400" />
-    <span>
-      Network: {node.stats?.network ?? 'N/A'}
-    </span>
-  </div>
+                                <div className="flex items-start gap-2 text-xs break-all">
+                                  <Activity className="h-3 w-3 text-gray-400" />
+                                  <span>
+                                    Network: {node.stats?.network ?? 'N/A'}
+                                  </span>
+                                </div>
 
-  <div className="flex items-start gap-2 text-xs break-all">
-    <Server className="h-3 w-3 text-gray-400" />
-    <span>
-      PIDs: {node.stats?.pids ?? 'N/A'}
-    </span>
-  </div>
-</div>
+                                <div className="flex items-start gap-2 text-xs break-all">
+                                  <Server className="h-3 w-3 text-gray-400" />
+                                  <span>
+                                    PIDs: {node.stats?.pids ?? 'N/A'}
+                                  </span>
+                                </div>
+                              </div>
 
                             </span>
                           </div>

@@ -148,7 +148,7 @@ export function TopNav() {
         </div>
 
         {/* Search */}
-        <div className="flex-1 max-w-xl ml-auto">
+        {/* <div className="flex-1 max-w-xl ml-auto">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <Input
@@ -156,7 +156,9 @@ export function TopNav() {
               className="pl-10 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 focus:ring-1 focus:ring-blue-500"
             />
           </div>
-        </div>
+        </div> */}
+
+        <div className="flex-1 ml-auto" />
 
         {/* Theme Toggle */}
         <ThemeToggle />
