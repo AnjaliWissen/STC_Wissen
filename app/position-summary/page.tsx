@@ -19,7 +19,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { ArrowUpDown, TrendingUp, TrendingDown, Clock } from 'lucide-react';
+import { ArrowUpDown, TrendingUp, TrendingDown, Clock,Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 import { formatDistanceToNow } from 'date-fns';
 import {
   Tooltip,
@@ -87,6 +88,8 @@ export default function FXLiquidityPage() {
   const [positionData, setPositionData] = useState<PositionData | null>(null);
   const [loading, setLoading] = useState(true);
   const [bridgePage, setBridgePage] = useState(1);
+  const [bridgeSearch, setBridgeSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const BRIDGE_LIMIT = 10;
 
   const fetchPositionData = async () => {
@@ -132,11 +135,20 @@ const {
   isError,
   isFetching,
 } = useQuery<PaginatedBridgeResponse>({
-  queryKey: ['stellar-bridges', bridgePage],
+  queryKey: ['stellar-bridges', bridgePage, debouncedSearch],
   queryFn: async () => {
+
+    const params = new URLSearchParams({
+        page: bridgePage.toString(),
+        limit: BRIDGE_LIMIT.toString(),
+      });
+
+      if (debouncedSearch) {
+        params.append('search', debouncedSearch);
+      }
     const res = await fetch(
-      `http://ec2-13-202-153-162.ap-south-1.compute.amazonaws.com:3000/api/stellar/bridges?page=${bridgePage}&limit=${BRIDGE_LIMIT}`
-    );
+  `http://ec2-13-202-153-162.ap-south-1.compute.amazonaws.com:3000/api/stellar/bridges?${params.toString()}`
+);
 
     if (!res.ok) {
       throw new Error('Failed to load bridge transactions');
@@ -173,6 +185,16 @@ const getStatusBadge = (status: string) => {
 
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+  const t = setTimeout(() => {
+    setDebouncedSearch(bridgeSearch.trim());
+    setBridgePage(1); // reset page on new search
+  }, 400);
+
+  return () => clearTimeout(t);
+}, [bridgeSearch]);
+
 
   const formatAmount = (amount: number) =>
   new Intl.NumberFormat('en-US', {
@@ -234,6 +256,7 @@ const getStatusBadge = (status: string) => {
                 addSuffix: true,
               })}
             </CardDescription>
+            
           </div>
           <Badge variant="outline" className="text-xs">
             Last Settlement:{' '}
@@ -367,14 +390,49 @@ const getStatusBadge = (status: string) => {
     </Card>
 
     <Card className="rounded-lg border bg-card shadow-sm bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-800 dark:to-gray-900/50">
-  <CardHeader>
+  {/* <CardHeader>
     <CardTitle>Stellar Bridge Transactions History</CardTitle>
     <CardDescription>
       Recent Stellar settlement bridge activity
     </CardDescription>
-  </CardHeader>
+    <div className="mt-3 max-w-sm">
+  <input
+    value={bridgeSearch}
+    onChange={(e) => setBridgeSearch(e.target.value)}
+    placeholder="Search by Bank, Txn ID, Currency…"
+    className="w-full rounded-md border px-3 py-2 text-sm bg-background"
+  />
+</div>
+  </CardHeader> */}
+
+  <CardHeader className="border-b">
+  <div className="flex items-center justify-between gap-4">
+    <div>
+      <CardTitle>Stellar Bridge Transactions History</CardTitle>
+      <CardDescription>
+        Recent Stellar settlement bridge activity
+      </CardDescription>
+    </div>
+
+    {/* 🔍 Search */}
+    <div className="relative w-80">
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+      <Input
+        placeholder="Search by bank, txn id, currency…"
+        value={bridgeSearch}
+        onChange={(e) => setBridgeSearch(e.target.value)}
+        className="pl-10"
+      />
+    </div>
+  </div>
+</CardHeader>
+
+  
 
   <CardContent>
+
+    
+
     {bridgesLoading ? (
       <div className="text-center py-8 text-muted-foreground">
         Loading bridge transactions…
@@ -389,6 +447,7 @@ const getStatusBadge = (status: string) => {
       </div>
     ) : (
       <div className="overflow-x-auto">
+        
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b">

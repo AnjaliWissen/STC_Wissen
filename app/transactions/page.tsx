@@ -336,6 +336,8 @@ interface Transaction {
   fxRateLocked: boolean;
   status: string;
   timestamp: string;
+  convertedAmount: number;       
+  convertedCurrency: string;     
 }
 
 interface TransactionsResponse {
@@ -366,32 +368,59 @@ export default function TransactionsPage() {
   }, [inputValue]);
 
   /* ---------- Fetch (Paginated) ---------- */
+  // const { data, isLoading, isError } = useQuery<TransactionsResponse>({
+  //   queryKey: ['transactions', page, limit],
+  //   queryFn: async () => {
+  //     const res = await fetch(
+  //       `${BASE_URL}/transactions?page=${page}&limit=${limit}`
+  //     );
+  //     if (!res.ok) throw new Error('Failed to fetch transactions');
+  //     return res.json();
+  //   },
+  //   // keepPreviousData: true,
+  //   placeholderData: (previousData) => previousData,
+  // });
+
   const { data, isLoading, isError } = useQuery<TransactionsResponse>({
-    queryKey: ['transactions', page, limit],
-    queryFn: async () => {
-      const res = await fetch(
-        `${BASE_URL}/transactions?page=${page}&limit=${limit}`
-      );
-      if (!res.ok) throw new Error('Failed to fetch transactions');
-      return res.json();
-    },
-    // keepPreviousData: true,
-    placeholderData: (previousData) => previousData,
-  });
+  queryKey: ['transactions', page, limit, searchTerm],
+  queryFn: async () => {
+    const params = new URLSearchParams({
+      page: String(page),
+      limit: String(limit),
+    });
+
+    // 🔐 optional only — does NOT affect other API usage
+    if (searchTerm) {
+      params.append('search', searchTerm);
+    }
+
+    const res = await fetch(
+      `${BASE_URL}/transactions?${params.toString()}`
+    );
+
+    if (!res.ok) throw new Error('Failed to fetch transactions');
+    return res.json();
+  },
+  placeholderData: (prev) => prev,
+});
+
 
   /* ---------- Filter (Client-side, current page) ---------- */
-  const transactions =
-    data?.transactions.filter((tx) => {
-      if (!searchTerm) return true;
-      const q = searchTerm.toLowerCase();
-      return (
-        tx.id.toLowerCase().includes(q) ||
-        tx.from.toLowerCase().includes(q) ||
-        tx.to.toLowerCase().includes(q) ||
-        tx.currency.toLowerCase().includes(q) ||
-        tx.status.toLowerCase().includes(q)
-      );
-    }) ?? [];
+  // const transactions =
+  //   data?.transactions.filter((tx) => {
+  //     if (!searchTerm) return true;
+  //     const q = searchTerm.toLowerCase();
+  //     return (
+  //       tx.id.toLowerCase().includes(q) ||
+  //       tx.from.toLowerCase().includes(q) ||
+  //       tx.to.toLowerCase().includes(q) ||
+  //       tx.currency.toLowerCase().includes(q) ||
+  //       tx.status.toLowerCase().includes(q)
+  //     );
+  //   }) ?? [];
+
+  const transactions = (data?.transactions ?? []) as Transaction[];
+
 
   /* ---------- Status UI ---------- */
   const getStatusColor = (status: string) => {
@@ -484,6 +513,7 @@ export default function TransactionsPage() {
                     <TableHead>Recipient</TableHead>
                     <TableHead>Amount</TableHead>
                     <TableHead>FX</TableHead>
+                    <TableHead>Converted Amount</TableHead>
                     <TableHead>Status</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -496,7 +526,7 @@ export default function TransactionsPage() {
                       return (
                         <TableRow
                           key={tx.id}
-                          className="cursor-pointer transition-colors hover:bg-blue-50 dark:hover:bg-blue-900/40"
+                          className="cursor-pointer transition-colors hover:bg-gray-200/20 dark:hover:bg-gray-700/40"
                           onClick={() => setSelectedTransactionId(tx.id)}
                         >
                           <TableCell className="font-mono text-xs">
@@ -521,9 +551,18 @@ export default function TransactionsPage() {
                           <TableCell>
                             {tx.fxRate.toFixed(4)}
                             {tx.fxRateLocked && (
-                              <span className="ml-1 text-green-600">🔒</span>
+                              <span className="font-semibold text-emerald-600">🔒</span>
                             )}
                           </TableCell>
+                          <TableCell className="font-semibold text-600">
+                          {tx.convertedAmount != null && tx.convertedCurrency
+                            ? `${tx.convertedAmount.toFixed(2)} ${tx.convertedCurrency}`
+                            : '—'}
+                        </TableCell>
+
+                        
+                       
+                        
 
                           <TableCell>
                             <Badge
