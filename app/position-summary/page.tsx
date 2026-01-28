@@ -1,252 +1,6 @@
-// 'use client';
-
-// import { useQuery } from '@tanstack/react-query';
-// import { supabase } from '@/lib/supabase';
-// import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-// import { Badge } from '@/components/ui/badge';
-// import {
-//   Table,
-//   TableBody,
-//   TableCell,
-//   TableHead,
-//   TableHeader,
-//   TableRow,
-// } from '@/components/ui/table';
-// import { TrendingUp, TrendingDown, AlertTriangle, CheckCircle2 } from 'lucide-react';
-// import { format } from 'date-fns';
-
-// export default function FXLiquidityPage() {
-//   const { data: fxRates, isLoading: fxLoading } = useQuery({
-//     queryKey: ['fx-rates'],
-//     queryFn: async () => {
-//       const { data, error } = await supabase
-//         .from('fx_rates')
-//         .select('*')
-//         .order('timestamp', { ascending: false })
-//         .limit(10);
-
-//       if (error) throw error;
-//       return data;
-//     },
-//   });
-
-//   const { data: liquidityData, isLoading: liquidityLoading } = useQuery({
-//     queryKey: ['bridge-liquidity'],
-//     queryFn: async () => {
-//       const { data, error } = await supabase
-//         .from('bridge_liquidity')
-//         .select('*')
-//         .order('network', { ascending: true });
-
-//       if (error) throw error;
-//       return data;
-//     },
-//   });
-
-//   const { data: bridgeErrors, isLoading: errorsLoading } = useQuery({
-//     queryKey: ['bridge-errors-list'],
-//     queryFn: async () => {
-//       const { data, error } = await supabase
-//         .from('bridge_errors')
-//         .select('*, transactions(fabric_hash, sender_id, recipient_id)')
-//         .order('created_at', { ascending: false })
-//         .limit(20);
-
-//       if (error) throw error;
-//       return data;
-//     },
-//   });
-
-//   const getStatusIcon = (status: string) => {
-//     switch (status) {
-//       case 'healthy':
-//         return <CheckCircle2 className="h-5 w-5 text-green-600" />;
-//       case 'warning':
-//         return <AlertTriangle className="h-5 w-5 text-amber-600" />;
-//       case 'critical':
-//         return <AlertTriangle className="h-5 w-5 text-red-600" />;
-//       default:
-//         return null;
-//     }
-//   };
-
-//   const getStatusColor = (status: string) => {
-//     switch (status) {
-//       case 'healthy':
-//         return 'default';
-//       case 'warning':
-//         return 'outline';
-//       case 'critical':
-//         return 'destructive';
-//       default:
-//         return 'secondary';
-//     }
-//   };
-
-//   return (
-//     <div className="p-6 space-y-6">
-//       <div>
-//         <h2 className="text-3xl font-bold text-gray-900 dark:text-white">FX & Liquidity Monitoring</h2>
-//         <p className="text-gray-600 dark:text-gray-400 mt-1">Stellar-Fabric bridge status and exchange rates</p>
-//       </div>
-
-//       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-//         <Card className="rounded-lg border bg-card text-card-foreground shadow-sm bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-800 dark:to-gray-900/50">
-//           <CardHeader>
-//             <CardTitle>Live FX Rates</CardTitle>
-//           </CardHeader>
-//           <CardContent>
-//             {fxLoading ? (
-//               <div className="text-center py-8 text-gray-500">Loading rates...</div>
-//             ) : (
-//               <div className="space-y-3">
-//                 {fxRates && fxRates.length > 0 ? (
-//                   fxRates
-//                     .reduce<typeof fxRates>((acc, rate) => {
-//                       if (!acc.find((r) => r.currency_pair === rate.currency_pair)) {
-//                         acc.push(rate);
-//                       }
-//                       return acc;
-//                     }, [])
-//                     .map((rate) => (
-//                       <div
-//                         key={rate.id}
-//                         className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
-//                       >
-//                         <div>
-//                           <div className="font-semibold text-lg">{rate.currency_pair}</div>
-//                           <div className="text-xs text-gray-500">
-//                             {format(new Date(rate.timestamp), 'MMM dd, HH:mm:ss')}
-//                           </div>
-//                         </div>
-//                         <div className="text-right">
-//                           <div className="text-2xl font-bold text-blue-600">
-//                             {Number(rate.rate).toFixed(4)}
-//                           </div>
-//                           <div className="text-xs text-gray-500">Stellar DEX</div>
-//                         </div>
-//                       </div>
-//                     ))
-//                 ) : (
-//                   <div className="text-center py-8 text-gray-500">
-//                     No FX rates available
-//                   </div>
-//                 )}
-//               </div>
-//             )}
-//           </CardContent>
-//         </Card>
-
-//         <Card className="rounded-lg border bg-card text-card-foreground shadow-sm bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-800 dark:to-gray-900/50">
-//           <CardHeader>
-//             <CardTitle>Bridge Liquidity</CardTitle>
-//           </CardHeader>
-//           <CardContent>
-//             {liquidityLoading ? (
-//               <div className="text-center py-8 text-gray-500">Loading liquidity data...</div>
-//             ) : (
-//               <div className="space-y-3">
-//                 {liquidityData && liquidityData.length > 0 ? (
-//                   liquidityData.map((liq) => (
-//                     <div
-//                       key={liq.id}
-//                       className="flex items-center justify-between p-4 border rounded-lg"
-//                     >
-//                       <div className="flex items-center gap-3">
-//                         {getStatusIcon(liq.status)}
-//                         <div>
-//                           <div className="font-semibold">
-//                             {liq.network.toUpperCase()} - {liq.currency}
-//                           </div>
-//                           <div className="text-xs text-gray-500">
-//                             Threshold: {Number(liq.threshold).toFixed(2)}
-//                           </div>
-//                         </div>
-//                       </div>
-//                       <div className="text-right">
-//                         <div className="text-xl font-bold">
-//                           {Number(liq.balance).toFixed(2)}
-//                         </div>
-//                         <Badge variant={getStatusColor(liq.status)}>
-//                           {liq.status}
-//                         </Badge>
-//                       </div>
-//                     </div>
-//                   ))
-//                 ) : (
-//                   <div className="text-center py-8 text-gray-500">
-//                     No liquidity data available
-//                   </div>
-//                 )}
-//               </div>
-//             )}
-//           </CardContent>
-//         </Card>
-//       </div>
-
-//       <Card className="rounded-lg border bg-card text-card-foreground shadow-sm bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-800 dark:to-gray-900/50">
-//         <CardHeader>
-//           <CardTitle>Bridge Error Log</CardTitle>
-//         </CardHeader>
-//         <CardContent>
-//           {errorsLoading ? (
-//             <div className="text-center py-8 text-gray-500">Loading errors...</div>
-//           ) : (
-//             <div className="rounded-md border">
-//               <Table>
-//                 <TableHeader>
-//                   <TableRow>
-//                     <TableHead>Timestamp</TableHead>
-//                     <TableHead>Error Type</TableHead>
-//                     <TableHead>Transaction</TableHead>
-//                     <TableHead>Error Message</TableHead>
-//                     <TableHead>Status</TableHead>
-//                   </TableRow>
-//                 </TableHeader>
-//                 <TableBody>
-//                   {bridgeErrors && bridgeErrors.length > 0 ? (
-//                     bridgeErrors.map((error: any) => (
-//                       <TableRow key={error.id}>
-//                         <TableCell className="text-sm">
-//                           {format(new Date(error.created_at), 'MMM dd, HH:mm:ss')}
-//                         </TableCell>
-//                         <TableCell>
-//                           <Badge variant="outline">{error.error_type}</Badge>
-//                         </TableCell>
-//                         <TableCell className="font-mono text-xs">
-//                           {error.transactions?.fabric_hash?.substring(0, 16)}...
-//                         </TableCell>
-//                         <TableCell className="text-sm max-w-md truncate">
-//                           {error.error_message}
-//                         </TableCell>
-//                         <TableCell>
-//                           <Badge variant={error.resolved ? 'default' : 'destructive'}>
-//                             {error.resolved ? 'Resolved' : 'Active'}
-//                           </Badge>
-//                         </TableCell>
-//                       </TableRow>
-//                     ))
-//                   ) : (
-//                     <TableRow>
-//                       <TableCell colSpan={5} className="text-center py-8 text-gray-500">
-//                         No bridge errors found
-//                       </TableCell>
-//                     </TableRow>
-//                   )}
-//                 </TableBody>
-//               </Table>
-//             </div>
-//           )}
-//         </CardContent>
-//       </Card>
-//     </div>
-//   );
-// }
-
-
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery,keepPreviousData } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { useEffect, useState } from 'react';
 import {
@@ -273,6 +27,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+
 
 
 
@@ -316,9 +71,23 @@ interface PositionData {
   };
 }
 
+type PaginatedBridgeResponse = {
+  success: boolean;
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+  bridges: StellarBridgeTx[];
+};
+
+
 export default function FXLiquidityPage() {
   const [positionData, setPositionData] = useState<PositionData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [bridgePage, setBridgePage] = useState(1);
+  const BRIDGE_LIMIT = 10;
 
   const fetchPositionData = async () => {
     try {
@@ -344,20 +113,45 @@ export default function FXLiquidityPage() {
   `https://stellar.expert/explorer/testnet/tx/${hash}`;
 
 
-  const {
-  data: bridgeTxs,
+type PaginatedBridgeResponse = {
+  success: boolean;
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+  bridges: StellarBridgeTx[];
+};
+
+
+
+const {
+  data: bridgeData,
   isLoading: bridgesLoading,
   isError,
-} = useQuery<StellarBridgeTx[]>({
-  queryKey: ['stellar-bridges'],
+  isFetching,
+} = useQuery<PaginatedBridgeResponse>({
+  queryKey: ['stellar-bridges', bridgePage],
   queryFn: async () => {
     const res = await fetch(
-      'http://ec2-13-202-153-162.ap-south-1.compute.amazonaws.com:3000/api/stellar/bridges'
+      `http://ec2-13-202-153-162.ap-south-1.compute.amazonaws.com:3000/api/stellar/bridges?page=${bridgePage}&limit=${BRIDGE_LIMIT}`
     );
-    if (!res.ok) throw new Error('Failed to load bridge transactions');
+
+    if (!res.ok) {
+      throw new Error('Failed to load bridge transactions');
+    }
+
     return res.json();
   },
+
+
+  placeholderData: keepPreviousData,
 });
+const bridgeTxs = bridgeData?.bridges ?? [];
+
+
+
 
 const getStatusBadge = (status: string) => {
   switch (status) {
@@ -381,10 +175,10 @@ const getStatusBadge = (status: string) => {
   }, []);
 
   const formatAmount = (amount: number) =>
-    new Intl.NumberFormat('en-US', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(amount);
+  new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(Number(amount));
 
   if (loading) {
     return (
@@ -571,6 +365,7 @@ const getStatusBadge = (status: string) => {
         </div>
       </CardContent>
     </Card>
+
     <Card className="rounded-lg border bg-card shadow-sm bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-800 dark:to-gray-900/50">
   <CardHeader>
     <CardTitle>Stellar Bridge Transactions History</CardTitle>
@@ -607,7 +402,7 @@ const getStatusBadge = (status: string) => {
           </thead>
 
           <tbody>
-            {bridgeTxs?.map((tx) => (
+            {bridgeTxs.map((tx) => (
               <tr
                 key={tx.transactionId}
                 className="border-b hover:bg-muted/40 transition"
@@ -619,7 +414,7 @@ const getStatusBadge = (status: string) => {
                 <td className="p-3">{tx.currency}</td>
 
                 <td className="p-3 text-right font-medium">
-                  {tx.amount}
+                  {formatAmount(tx.amount)}
                 </td>
 
                 <td className="p-3">
@@ -672,6 +467,33 @@ const getStatusBadge = (status: string) => {
             ))}
           </tbody>
         </table>
+        {bridgeData && (
+  <div className="flex items-center justify-between mt-4 text-sm">
+    <div className="text-muted-foreground">
+      Page {bridgeData.page} of {bridgeData.totalPages} •{' '}
+      {bridgeData.total} total transactions
+    </div>
+
+    <div className="flex gap-2">
+      <button
+        disabled={!bridgeData.hasPrevPage}
+        onClick={() => setBridgePage((p) => p - 1)}
+        className="px-3 py-1 rounded border disabled:opacity-50"
+      >
+        Previous
+      </button>
+
+      <button
+        disabled={!bridgeData.hasNextPage}
+        onClick={() => setBridgePage((p) => p + 1)}
+        className="px-3 py-1 rounded border disabled:opacity-50"
+      >
+        Next
+      </button>
+    </div>
+  </div>
+)}
+
       </div>
     )}
   </CardContent>
@@ -680,3 +502,5 @@ const getStatusBadge = (status: string) => {
     </div>
   );
 }
+
+
