@@ -6,6 +6,10 @@ import { LatencyChart } from '@/components/dashboard/latency-chart';
 import { ResourceUtilization } from '@/components/dashboard/resource-utilization';
 import { FXRatesWidget } from '@/components/dashboard/fx-rates-widget';
 import { PositionWidget } from '@/components/dashboard/position-widget';
+import { BahrainEscrowWidget } from '@/components/dashboard/bahrain-escrow-widget';
+import { KuwaitEscrowWidget } from '@/components/dashboard/kuwait-escrow-widget';
+import { ComprehensiveBalancesWidget } from '@/components/dashboard/comprehensive-balances-widget';
+import { StellarBalancesWidget } from '@/components/dashboard/stellar-balances-widget';
 
 export default function Dashboard() {
   return (
@@ -28,11 +32,22 @@ export default function Dashboard() {
         <TPSChart />
         <LatencyChart />
       </div>
+
       
-
-      <ResourceUtilization />
-
       <PositionWidget />
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <ComprehensiveBalancesWidget />
+        <StellarBalancesWidget />
+    
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <KuwaitEscrowWidget />
+        <BahrainEscrowWidget />
+      </div>
+      <ResourceUtilization />
+      
     </div>
   );
 }
