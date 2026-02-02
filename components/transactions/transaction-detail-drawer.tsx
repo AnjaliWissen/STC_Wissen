@@ -9,9 +9,12 @@ import {
 } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { CheckCircle2, Clock } from 'lucide-react';
+import { CheckCircle2, Clock ,Copy, Check} from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+
+import { useState } from 'react';
+
 
 
 const getStatusColor = (status: string) => {
@@ -44,6 +47,7 @@ interface TimelineResponse {
   success: boolean;
   timeline: {
     transactionId: string;
+    stctx_ext_id: string
     type: string;
     status: string;
     progressPercentage: number;
@@ -70,6 +74,39 @@ const BASE_URL =
   'http://ec2-13-202-153-162.ap-south-1.compute.amazonaws.com:3000/api';
 
 /* -------------------- Component -------------------- */
+
+function CopyableValue({ value }: { value: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(value);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
+
+  return (
+    <div className="flex items-start gap-2">
+      <div className="flex-1 font-mono text-xs bg-gray-100 dark:bg-gray-800 p-2 rounded break-all">
+        {value}
+      </div>
+
+      <button
+        onClick={handleCopy}
+        className="mt-1 p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition"
+        title="Copy to clipboard"
+      >
+        {copied ? (
+          <Check className="h-4 w-4 text-green-500" />
+        ) : (
+          <Copy className="h-4 w-4 text-gray-500" />
+        )}
+      </button>
+    </div>
+  );
+}
+
+
+
 
 export function TransactionDetailDrawer({
   transactionId,
@@ -206,11 +243,22 @@ export function TransactionDetailDrawer({
 
                 <div>
                   <div className="text-gray-600 mb-1">
-                    Transaction ID
+                    STC Transaction ID
                   </div>
-                  <div className="font-mono text-xs bg-gray-100 dark:bg-gray-800 p-2 rounded break-all">
+                  {/* <div className="font-mono text-xs bg-gray-100 dark:bg-gray-800 p-2 rounded break-all">
                     {timeline.transactionId}
+                  </div> */}
+                  <CopyableValue value={timeline.transactionId} />
+                </div>
+                <div>
+                  <div className="text-gray-600 mb-1">
+                    Blockchain Hash
                   </div>
+                  {/* <div className="font-mono text-xs bg-gray-100 dark:bg-gray-800 p-2 rounded break-all">
+                    {timeline.stctx_ext_id}
+                  </div> */}
+                  <CopyableValue value={timeline.stctx_ext_id} />
+
                 </div>
               </div>
             </div>
