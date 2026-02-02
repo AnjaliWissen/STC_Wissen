@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 // import { supabase } from '@/lib/supabase';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Server, Shield, Lock, Activity, Zap, Cpu } from 'lucide-react';
+import { Server, Shield, Lock, Activity, Zap, Cpu ,Gauge,Box   } from 'lucide-react';
 import { useState } from 'react';
 
 //   TypeScript interfaces for Fabric node status structure
@@ -89,12 +89,69 @@ export function NodeStatusGrid() {
   // };
 
   //   Helper function to determine node type from container image
-  const getNodeTypeFromImage = (image: string): string => {
-    if (image.includes('orderer')) return 'orderer';
-    if (image.includes('peer')) return 'peer';
-    if (image.includes('ca')) return 'ca';
-    return 'unknown';
-  };
+  // const getNodeTypeFromImage = (image: string): string => {
+  //   if (image.includes('orderer')) return 'orderer';
+  //   if (image.includes('peer')) return 'peer';
+  //   if (image.includes('ca')) return 'ca';
+  //   return 'unknown';
+  // };
+
+  const getNodeType = (image: string, name: string): string => {
+      const img = image.toLowerCase();
+      const nodeName = name.toLowerCase();
+
+      // Orderer checks
+      if (
+        img.includes('orderer') ||
+        nodeName.endsWith('order') ||
+        nodeName.endsWith('orderer')
+      ) {
+        return 'orderer';
+      }
+
+      // Peer: keep as-is (image based)
+      if (img.includes('peer')) {
+        return 'peer';
+      }
+
+      // CA: KEEP EXACTLY AS-IS
+      if (img.includes('ca')) {
+        return 'ca';
+      }
+
+      return 'unknown';
+    };
+
+    const getNodeRoles = (image: string, name: string): string[] => {
+  const img = image.toLowerCase();
+  const nodeName = name.toLowerCase();
+
+  const roles: string[] = [];
+
+  // Orderer logic
+  if (
+    img.includes('orderer') ||
+    nodeName.endsWith('order') ||
+    nodeName.endsWith('orderer') ||
+    nodeName.includes('orderer')
+  ) {
+    roles.push('orderer');
+  }
+
+  // Peer logic (unchanged)
+  if (img.includes('peer')) {
+    roles.push('peer');
+  }
+
+  // CA logic (UNCHANGED, image-based only)
+  if (img.includes('ca')) {
+    roles.push('ca');
+  }
+
+  return roles.length ? roles : ['unknown'];
+};
+
+
 
   // Helper function to map node type to icon component
   const getNodeIcon = (type: string) => {
@@ -161,31 +218,64 @@ export function NodeStatusGrid() {
 
 
 
+  // const groupedNodeData =
+  // nodes?.containers.reduce((acc: Record<string, any[]>, container) => {
+  //   const nodeType = getNodeType(container.image, container.name);
+  //   if (!acc[nodeType]) acc[nodeType] = [];
+
+  //   const stats = statsMap.get(container.name);
+
+  //   acc[nodeType].push({
+  //     id: container.id,
+  //     node_name: container.name,
+  //     host: container.ports,
+  //     status: container.state,
+  //     uptime: container.uptime,
+  //     image: container.image,
+
+  //     // attach stats safely
+  //     stats,
+  //   });
+
+  //   return acc;
+  // }, { peer: [], orderer: [], ca: [] }) || { peer: [], orderer: [], ca: [] };
+
   const groupedNodeData =
-  nodes?.containers.reduce((acc: Record<string, any[]>, container) => {
-    const nodeType = getNodeTypeFromImage(container.image);
-    if (!acc[nodeType]) acc[nodeType] = [];
+  nodes?.containers.reduce(
+    (acc: Record<string, any[]>, container) => {
+      const roles = getNodeRoles(container.image, container.name);
+      const stats = statsMap.get(container.name);
 
-    const stats = statsMap.get(container.name);
+      roles.forEach((role) => {
+        if (!acc[role]) acc[role] = [];
 
-    acc[nodeType].push({
-      id: container.id,
-      node_name: container.name,
-      host: container.ports,
-      status: container.state,
-      uptime: container.uptime,
-      image: container.image,
+        acc[role].push({
+          id: container.id,
+          node_name: container.name,
+          host: container.ports,
+          status: container.state,
+          uptime: container.uptime,
+          image: container.image,
+          stats,
+        });
+      });
 
-      // attach stats safely
-      stats,
-    });
+      return acc;
+    },
+    { peer: [], orderer: [], ca: [] }
+  ) || { peer: [], orderer: [], ca: [] };
 
-    return acc;
-  }, { peer: [], orderer: [], ca: [] }) || { peer: [], orderer: [], ca: [] };
 
 
 const onlineCount = nodes?.containers?.filter(n => n.state === 'running').length || 0;
 const totalCount = nodes?.containers?.length || 0;
+
+    const NODE_TYPE_LABELS: Record<string, string> = {
+      peer: 'Peer Nodes',
+      orderer: 'Orderer Nodes',
+      ca: 'CASS',
+    };
+
 
   return (
     <Card className="p-6 bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-800 dark:to-gray-900/50">
@@ -221,7 +311,7 @@ const totalCount = nodes?.containers?.length || 0;
                       <Icon className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                     </div>
                     <h3 className="font-semibold text-sm uppercase text-gray-700 dark:text-gray-300">
-                      {type} Nodes
+                    {NODE_TYPE_LABELS[type] ?? `${type} Nodes`}
                     </h3>
                   </div>
                   <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
@@ -230,15 +320,15 @@ const totalCount = nodes?.containers?.length || 0;
                 </div>
                 {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4"> */}
                 <div
-  className="
-    grid
-    grid-cols-1
-    sm:grid-cols-2
-    lg:grid-cols-3
-    gap-4
-    auto-rows-fr
-  "
->
+                className="
+                  grid
+                  grid-cols-1
+                  sm:grid-cols-2
+                  lg:grid-cols-3
+                  gap-4
+                  auto-rows-fr
+                "
+              >
 
 
                   {typeNodes.map((node) => {
@@ -280,8 +370,8 @@ const totalCount = nodes?.containers?.length || 0;
                         <div className="flex items-start justify-between mb-3">
                           <div className="flex-1">
                             <div className="font-semibold text-sm text-gray-900 dark:text-gray-100 mb-1 break-all">
-  {node.node_name}
-</div>
+                              {node.node_name}
+                            </div>
                             {/* <div className="text-xs text-gray-500 dark:text-gray-400 font-mono">
                               {node.host}
                             </div> */}
@@ -310,9 +400,23 @@ const totalCount = nodes?.containers?.length || 0;
                                 </div>
 
                                 <div className="flex items-start gap-2 text-xs break-all">
+                                  <Gauge  className="h-3 w-3 text-gray-400" />
+                                  <span>
+                                    Memory % : {node.stats?.memoryPercent ?? 'N/A'}
+                                  </span>
+                                </div>
+
+                                <div className="flex items-start gap-2 text-xs break-all">
                                   <Activity className="h-3 w-3 text-gray-400" />
                                   <span>
                                     Network: {node.stats?.network ?? 'N/A'}
+                                  </span>
+                                </div>
+
+                                 <div className="flex items-start gap-2 text-xs break-all">
+                                  <Box  className="h-3 w-3 text-gray-400" />
+                                  <span>
+                                    Block: {node.stats?.block ?? 'N/A'}
                                   </span>
                                 </div>
 

@@ -182,6 +182,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -194,10 +195,7 @@ interface AlertRuleDialogProps {
   onClose: () => void;
 }
 
-export function AlertRuleDialog({
-  open,
-  onClose,
-}: AlertRuleDialogProps) {
+export function AlertRuleDialog({ open, onClose }: AlertRuleDialogProps) {
   const [config, setConfig] = useState({
     cpu: { enabled: true, threshold: 0 },
     memory: { enabled: true, threshold: 0 },
@@ -205,12 +203,6 @@ export function AlertRuleDialog({
     lowBalance: { thresholdKWD: 0, thresholdBHD: 0 },
     failedTransactions: { countThreshold: 0 },
   });
-
-  const darkInput =
-  "h-11 rounded-lg bg-white/5 border border-white/10 text-white " +
-  "placeholder:text-slate-400 " +
-  "focus:border-blue-500/60 focus:ring-2 focus:ring-blue-500/20 " +
-  "transition";
 
   const updateConfigMutation = useMutation({
     mutationFn: async () => {
@@ -237,233 +229,247 @@ export function AlertRuleDialog({
     updateConfigMutation.mutate();
   };
 
- return (
-  <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-    <DialogContent
-  className="
-   rounded-lg border bg-card text-card-foreground shadow-sm bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-800 dark:to-gray-900/50"
->
-      <DialogHeader>
-        <DialogTitle className="text-2xl font-semibold text-white">
-          Alert Configuration
-        </DialogTitle>
-      </DialogHeader>
-
-      <form onSubmit={handleSubmit} className="space-y-8">
-        {/* Grid Layout */}
-        <div className="grid grid-cols-2 gap-6">
-          {/* CPU */}
-          <div className="space-y-2">
-            <Label className="text-slate-300">CPU Threshold (%)</Label>
-            <Input
-              type="number"
-              min={0}
-              value={config.cpu.threshold}
-              className="
-                h-11 rounded-lg
-                bg-white/5 border border-white/10
-                text-white placeholder:text-slate-400
-                shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]
-                focus:border-blue-500/60
-                focus:ring-2 focus:ring-blue-500/20
-                transition
-              "
-              onChange={(e) =>
-                setConfig((p) => ({
-                  ...p,
-                  cpu: {
-                    ...p.cpu,
-                    threshold: e.target.valueAsNumber || 0,
-                  },
-                }))
-              }
-            />
-          </div>
-
-          {/* Memory */}
-          <div className="space-y-2">
-            <Label className="text-slate-300">Memory Threshold (%)</Label>
-            <Input
-              type="number"
-              min={0}
-              value={config.memory.threshold}
-              className="
-                h-11 rounded-lg
-                bg-white/5 border border-white/10
-                text-white placeholder:text-slate-400
-                shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]
-                focus:border-blue-500/60
-                focus:ring-2 focus:ring-blue-500/20
-                transition
-              "
-              onChange={(e) =>
-                setConfig((p) => ({
-                  ...p,
-                  memory: {
-                    ...p.memory,
-                    threshold: e.target.valueAsNumber || 0,
-                  },
-                }))
-              }
-            />
-          </div>
-
-          {/* Stuck Transactions */}
-          <div className="space-y-2">
-            <Label className="text-slate-300">
-              Stuck Transactions Timeout (minutes)
-            </Label>
-            <Input
-              type="number"
-              min={0}
-              value={config.stuckTransactions.timeoutMinutes}
-              className="
-                h-11 rounded-lg
-                bg-white/5 border border-white/10
-                text-white placeholder:text-slate-400
-                shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]
-                focus:border-blue-500/60
-                focus:ring-2 focus:ring-blue-500/20
-                transition
-              "
-              onChange={(e) =>
-                setConfig((p) => ({
-                  ...p,
-                  stuckTransactions: {
-                    timeoutMinutes: e.target.valueAsNumber || 0,
-                  },
-                }))
-              }
-            />
-          </div>
-
-          {/* Failed Transactions */}
-          <div className="space-y-2">
-            <Label className="text-slate-300">
-              Failed Transactions Count
-            </Label>
-            <Input
-              type="number"
-              min={0}
-              value={config.failedTransactions.countThreshold}
-              className="
-                h-11 rounded-lg
-                bg-white/5 border border-white/10
-                text-white placeholder:text-slate-400
-                shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]
-                focus:border-blue-500/60
-                focus:ring-2 focus:ring-blue-500/20
-                transition
-              "
-              onChange={(e) =>
-                setConfig((p) => ({
-                  ...p,
-                  failedTransactions: {
-                    countThreshold: e.target.valueAsNumber || 0,
-                  },
-                }))
-              }
-            />
-          </div>
-
-          {/* Low Balance KWD */}
-          <div className="space-y-2">
-            <Label className="text-slate-300">
-              Low Balance Threshold (KWD)
-            </Label>
-            <Input
-              type="number"
-              min={0}
-              value={config.lowBalance.thresholdKWD}
-              className="
-                h-11 rounded-lg
-                bg-white/5 border border-white/10
-                text-white placeholder:text-slate-400
-                shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]
-                focus:border-blue-500/60
-                focus:ring-2 focus:ring-blue-500/20
-                transition
-              "
-              onChange={(e) =>
-                setConfig((p) => ({
-                  ...p,
-                  lowBalance: {
-                    ...p.lowBalance,
-                    thresholdKWD: e.target.valueAsNumber || 0,
-                  },
-                }))
-              }
-            />
-          </div>
-
-          {/* Low Balance BHD */}
-          <div className="space-y-2">
-            <Label className="text-slate-300">
-              Low Balance Threshold (BHD)
-            </Label>
-            <Input
-              type="number"
-              min={0}
-              value={config.lowBalance.thresholdBHD}
-              className="
-                h-11 rounded-lg
-                bg-white/5 border border-white/10
-                text-white placeholder:text-slate-400
-                shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]
-                focus:border-blue-500/60
-                focus:ring-2 focus:ring-blue-500/20
-                transition
-              "
-              onChange={(e) =>
-                setConfig((p) => ({
-                  ...p,
-                  lowBalance: {
-                    ...p.lowBalance,
-                    thresholdBHD: e.target.valueAsNumber || 0,
-                  },
-                }))
-              }
-            />
-          </div>
-        </div>
-
-        {/* Footer */}
-        <DialogFooter className="pt-4">
-          <Button
-            type="button"
-            variant="outline"
-            className="border-white/20 text-white hover:bg-white/10"
-            onClick={onClose}
-          >
-            Cancel
-          </Button>
-
-          <Button
-            type="submit"
-            className="bg-blue-600 hover:bg-blue-500"
-            disabled={updateConfigMutation.isPending}
-          >
-            {updateConfigMutation.isPending ? 'Saving…' : 'Save'}
-          </Button>
-        </DialogFooter>
-      </form>
-    </DialogContent>
-  </Dialog>
-);
-
-}
-
-function Section({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
   return (
-    <div className="space-y-2">
-      <Label className="text-slate-300">{label}</Label>
-      {children}
-    </div>
+    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent
+        className="
+          rounded-lg border 
+          bg-background text-foreground
+          shadow-lg
+
+          dark:bg-gradient-to-br 
+          dark:from-gray-800 
+          dark:to-gray-900/50
+        "
+      >
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-semibold text-foreground">
+            Alert Configuration
+          </DialogTitle>
+        </DialogHeader>
+
+        <form onSubmit={handleSubmit} className="space-y-8">
+          <div className="grid grid-cols-2 gap-6">
+
+            {/* CPU */}
+            <div className="space-y-2">
+              <Label className="text-foreground">
+                CPU Threshold (%)
+              </Label>
+
+              <Input
+                type="number"
+                min={0}
+                value={config.cpu.threshold}
+                className="
+                  h-11 rounded-lg
+                  bg-background
+                  border border-input
+                  text-foreground
+                  placeholder:text-muted-foreground
+
+                  dark:bg-white/5 
+                  dark:border-white/10 
+                  dark:text-white 
+                  dark:placeholder:text-slate-400
+
+                  focus:border-primary
+                  focus:ring-2 focus:ring-primary/20
+                  transition
+                "
+                onChange={(e) =>
+                  setConfig((p) => ({
+                    ...p,
+                    cpu: {
+                      ...p.cpu,
+                      threshold: e.target.valueAsNumber || 0,
+                    },
+                  }))
+                }
+              />
+            </div>
+
+            {/* MEMORY */}
+            <div className="space-y-2">
+              <Label className="text-foreground">
+                Memory Threshold (%)
+              </Label>
+
+              <Input
+                type="number"
+                min={0}
+                value={config.memory.threshold}
+                className="
+                  h-11 rounded-lg
+                  bg-background
+                  border border-input
+                  text-foreground
+                  placeholder:text-muted-foreground
+
+                  dark:bg-white/5 
+                  dark:border-white/10 
+                  dark:text-white
+
+                  focus:border-primary
+                  focus:ring-2 focus:ring-primary/20
+                  transition
+                "
+                onChange={(e) =>
+                  setConfig((p) => ({
+                    ...p,
+                    memory: {
+                      ...p.memory,
+                      threshold: e.target.valueAsNumber || 0,
+                    },
+                  }))
+                }
+              />
+            </div>
+
+            {/* STUCK TRANSACTIONS */}
+            <div className="space-y-2">
+              <Label className="text-foreground">
+                Stuck Transactions Timeout (minutes)
+              </Label>
+
+              <Input
+                type="number"
+                min={0}
+                value={config.stuckTransactions.timeoutMinutes}
+                className="
+                  h-11 rounded-lg
+                  bg-background border border-input
+                  text-foreground
+                  dark:bg-white/5 dark:border-white/10
+                "
+                onChange={(e) =>
+                  setConfig((p) => ({
+                    ...p,
+                    stuckTransactions: {
+                      timeoutMinutes: e.target.valueAsNumber || 0,
+                    },
+                  }))
+                }
+              />
+            </div>
+
+            {/* FAILED TRANSACTIONS */}
+            <div className="space-y-2">
+              <Label className="text-foreground">
+                Failed Transactions Count
+              </Label>
+
+              <Input
+                type="number"
+                min={0}
+                value={config.failedTransactions.countThreshold}
+                className="
+                  h-11 rounded-lg
+                  bg-background border border-input
+                  text-foreground
+                  dark:bg-white/5 dark:border-white/10
+                "
+                onChange={(e) =>
+                  setConfig((p) => ({
+                    ...p,
+                    failedTransactions: {
+                      countThreshold: e.target.valueAsNumber || 0,
+                    },
+                  }))
+                }
+              />
+            </div>
+
+            {/* LOW BALANCE KWD */}
+            <div className="space-y-2">
+              <Label className="text-foreground">
+                Low Balance Threshold (KWD)
+              </Label>
+
+              <Input
+                type="number"
+                min={0}
+                value={config.lowBalance.thresholdKWD}
+                className="
+                  h-11 rounded-lg
+                  bg-background border border-input
+                  text-foreground
+                  dark:bg-white/5 dark:border-white/10
+                "
+                onChange={(e) =>
+                  setConfig((p) => ({
+                    ...p,
+                    lowBalance: {
+                      ...p.lowBalance,
+                      thresholdKWD: e.target.valueAsNumber || 0,
+                    },
+                  }))
+                }
+              />
+            </div>
+
+            {/* LOW BALANCE BHD */}
+            <div className="space-y-2">
+              <Label className="text-foreground">
+                Low Balance Threshold (BHD)
+              </Label>
+
+              <Input
+                type="number"
+                min={0}
+                value={config.lowBalance.thresholdBHD}
+                className="
+                  h-11 rounded-lg
+                  bg-background border border-input
+                  text-foreground
+                  dark:bg-white/5 dark:border-white/10
+                "
+                onChange={(e) =>
+                  setConfig((p) => ({
+                    ...p,
+                    lowBalance: {
+                      ...p.lowBalance,
+                      thresholdBHD: e.target.valueAsNumber || 0,
+                    },
+                  }))
+                }
+              />
+            </div>
+
+          </div>
+
+          <DialogFooter className="pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              className="
+                border-input text-foreground
+                hover:bg-accent hover:text-accent-foreground
+
+                dark:border-white/20 
+                dark:text-white 
+                dark:hover:bg-white/10
+              "
+              onClick={onClose}
+            >
+              Cancel
+            </Button>
+
+            <Button
+              type="submit"
+              className="
+                bg-primary text-primary-foreground
+                hover:bg-primary/90
+              "
+              disabled={updateConfigMutation.isPending}
+            >
+              {updateConfigMutation.isPending ? 'Saving…' : 'Save'}
+            </Button>
+          </DialogFooter>
+
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }
+ 

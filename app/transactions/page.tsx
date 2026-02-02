@@ -549,7 +549,7 @@ export default function TransactionsPage() {
                           </TableCell>
 
                           <TableCell>
-                            {tx.fxRate.toFixed(4)}
+                            {tx.fxRate}
                             {tx.fxRateLocked && (
                               <span className="font-semibold text-emerald-600">🔒</span>
                             )}

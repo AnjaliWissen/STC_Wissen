@@ -277,7 +277,7 @@ export function ResourceUtilization() {
                 <div className="flex justify-between">
                   <span className="text-gray-500">Block I/O</span>
                   <span className="font-mono text-xs">
-                    {extractBlockIO(c.block)}
+                    {c.block}
                   </span>
                 </div>
 
