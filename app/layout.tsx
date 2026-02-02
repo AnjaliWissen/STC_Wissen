@@ -5,6 +5,7 @@ import { QueryProvider } from '@/components/providers/query-provider';
 import { ThemeProvider } from '@/components/providers/theme-provider';
 import { TopNav } from '@/components/layout/top-nav';
 import { Sidebar } from '@/components/layout/sidebar';
+import NextTopLoader from 'nextjs-toploader';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -68,6 +69,13 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
+          <NextTopLoader
+          color="#3b82f6"
+          height={3}
+          showSpinner={false}
+          easing="ease"
+          speed={200}
+        />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
