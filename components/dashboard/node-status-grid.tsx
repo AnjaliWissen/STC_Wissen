@@ -122,34 +122,58 @@ export function NodeStatusGrid() {
       return 'unknown';
     };
 
-    const getNodeRoles = (image: string, name: string): string[] => {
-  const img = image.toLowerCase();
+//   const getNodeRoles = (image: string, name: string): string[] => {
+//   const img = image.toLowerCase();
+//   const nodeName = name.toLowerCase();
+
+//   const roles: string[] = [];
+
+//   // Orderer logic
+//   if (
+//     img.includes('orderer') ||
+//     nodeName.endsWith('order') ||
+//     nodeName.endsWith('orderer') ||
+//     nodeName.includes('orderer')
+//   ) {
+//     roles.push('orderer');
+//   }
+
+//   // Peer logic (unchanged)
+//   if (img.includes('peer')) {
+//     roles.push('peer');
+//   }
+
+//   // CA logic (UNCHANGED, image-based only)
+//   if (img.includes('ca')) {
+//     roles.push('ca');
+//   }
+
+//   return roles.length ? roles : ['unknown'];
+// };
+
+const getNodeRoles = (_image: string, name: string): string[] => {
   const nodeName = name.toLowerCase();
 
-  const roles: string[] = [];
-
-  // Orderer logic
-  if (
-    img.includes('orderer') ||
-    nodeName.endsWith('order') ||
-    nodeName.endsWith('orderer') ||
-    nodeName.includes('orderer')
-  ) {
-    roles.push('orderer');
+  // 1️⃣ ORDERER (wins over everything)
+  if (nodeName.includes('orderer')) {
+    return ['orderer'];
   }
 
-  // Peer logic (unchanged)
-  if (img.includes('peer')) {
-    roles.push('peer');
+  // 2️⃣ CCaaS (explicit keyword only)
+  if (nodeName.includes('ccaas')) {
+    return ['ca']; // maps to CCaaS section
   }
 
-  // CA logic (UNCHANGED, image-based only)
-  if (img.includes('ca')) {
-    roles.push('ca');
+  // 3️⃣ PEER (normal peer nodes only)
+  if (nodeName.startsWith('peer')) {
+    return ['peer'];
   }
 
-  return roles.length ? roles : ['unknown'];
+  return ['unknown'];
 };
+
+
+
 
 
 
@@ -273,7 +297,7 @@ const totalCount = nodes?.containers?.length || 0;
     const NODE_TYPE_LABELS: Record<string, string> = {
       peer: 'Peer Nodes',
       orderer: 'Orderer Nodes',
-      ca: 'CASS',
+      ca: 'CCaaS',
     };
 
 

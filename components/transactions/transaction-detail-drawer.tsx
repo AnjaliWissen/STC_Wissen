@@ -78,11 +78,35 @@ const BASE_URL =
 function CopyableValue({ value }: { value: string }) {
   const [copied, setCopied] = useState(false);
 
+  // const handleCopy = async () => {
+  //   await navigator.clipboard.writeText(value);
+  //   setCopied(true);
+  //   setTimeout(() => setCopied(false), 1500);
+  // };
+
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(value);
+  try {
+    if (navigator?.clipboard?.writeText) {
+      await navigator.clipboard.writeText(value);
+    } else {
+      // Fallback for HTTP / unsupported browsers
+      const textarea = document.createElement('textarea');
+      textarea.value = value;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+    }
+
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
-  };
+  } catch (err) {
+    console.error('Copy failed', err);
+  }
+};
+
 
   return (
     <div className="flex items-start gap-2">
@@ -248,7 +272,8 @@ export function TransactionDetailDrawer({
                   {/* <div className="font-mono text-xs bg-gray-100 dark:bg-gray-800 p-2 rounded break-all">
                     {timeline.transactionId}
                   </div> */}
-                  <CopyableValue value={timeline.transactionId} />
+                  
+                  <CopyableValue value={timeline.stctx_ext_id} />
                 </div>
                 <div>
                   <div className="text-gray-600 mb-1">
@@ -257,7 +282,8 @@ export function TransactionDetailDrawer({
                   {/* <div className="font-mono text-xs bg-gray-100 dark:bg-gray-800 p-2 rounded break-all">
                     {timeline.stctx_ext_id}
                   </div> */}
-                  <CopyableValue value={timeline.stctx_ext_id} />
+                  <CopyableValue value={timeline.transactionId} />
+                  
 
                 </div>
               </div>

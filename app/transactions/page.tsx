@@ -337,7 +337,8 @@ interface Transaction {
   status: string;
   timestamp: string;
   convertedAmount: number;       
-  convertedCurrency: string;     
+  convertedCurrency: string;   
+  stctx_ext_id:string;  
 }
 
 interface TransactionsResponse {
@@ -525,13 +526,13 @@ export default function TransactionsPage() {
 
                       return (
                         <TableRow
-                          key={tx.id}
+                          key={tx.stctx_ext_id}
                           className="cursor-pointer transition-colors hover:bg-gray-200/20 dark:hover:bg-gray-700/40"
                           onClick={() => setSelectedTransactionId(tx.id)}
                         >
                           <TableCell className="font-mono text-xs">
                             <Send className="inline h-4 w-4 mr-1 text-blue-500" />
-                            {tx.id.slice(0, 16)}…
+                            {tx.stctx_ext_id.slice(0, 16)}…
                           </TableCell>
 
                           <TableCell>
