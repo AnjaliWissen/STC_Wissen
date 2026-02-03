@@ -9,9 +9,11 @@ import {
 } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { CheckCircle2, Clock ,Copy, Check} from 'lucide-react';
+import { CheckCircle2, Clock ,Copy, Check,AlertCircle, ArrowRight} from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
 
 import { useState } from 'react';
 
@@ -73,40 +75,35 @@ interface TransactionDetailDrawerProps {
 const BASE_URL =
   'http://ec2-13-202-153-162.ap-south-1.compute.amazonaws.com:3000/api';
 
-/* -------------------- Component -------------------- */
 
 function CopyableValue({ value }: { value: string }) {
   const [copied, setCopied] = useState(false);
 
-  // const handleCopy = async () => {
-  //   await navigator.clipboard.writeText(value);
-  //   setCopied(true);
-  //   setTimeout(() => setCopied(false), 1500);
-  // };
+  const handleCopy = async (text: string) => {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.left = '-9999px';
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
 
-  const handleCopy = async () => {
-  try {
-    if (navigator?.clipboard?.writeText) {
-      await navigator.clipboard.writeText(value);
-    } else {
-      // Fallback for HTTP / unsupported browsers
-      const textarea = document.createElement('textarea');
-      textarea.value = value;
-      textarea.style.position = 'fixed';
-      textarea.style.opacity = '0';
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textarea);
+        // @ts-ignore deprecated but safe fallback
+        document.execCommand('copy');
+
+        document.body.removeChild(textarea);
+      }
+
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch (err) {
+      console.error('Copy failed', err);
     }
-
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
-  } catch (err) {
-    console.error('Copy failed', err);
-  }
-};
-
+  };
 
   return (
     <div className="flex items-start gap-2">
@@ -115,7 +112,7 @@ function CopyableValue({ value }: { value: string }) {
       </div>
 
       <button
-        onClick={handleCopy}
+        onClick={() => handleCopy(value)}   // ✅ critical fix
         className="mt-1 p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition"
         title="Copy to clipboard"
       >
@@ -153,7 +150,8 @@ export function TransactionDetailDrawer({
 
   const timeline = data?.timeline;
   const metadata = timeline?.metadata;
- const statusVariant = getStatusColor(timeline?.status ?? 'pending');
+const statusVariant = getStatusColor(timeline?.status ?? 'pending');
+const { toast } = useToast();
 
   const fxStage = timeline?.stages.find(
     (s) => s.stage === 'fx_rate_lock'
@@ -161,10 +159,16 @@ export function TransactionDetailDrawer({
   const conversionStage = timeline?.stages.find(
     (s) => s.stage === 'conversion'
   );
-  
+  const copyToClipboard = (text: string, label: string) => {
+      navigator.clipboard.writeText(text);
+      toast({
+        title: "Copied to clipboard",
+        description: `${label} copied successfully`,
+      });
+    };
 
   return (
-    
+
     <Sheet open={open} onOpenChange={onClose}>
       <SheetContent className="w-[600px] sm:max-w-[600px] overflow-y-auto bg-white dark:bg-gray-900 border-l">
         <SheetHeader>
@@ -269,21 +273,46 @@ export function TransactionDetailDrawer({
                   <div className="text-gray-600 mb-1">
                     STC Transaction ID
                   </div>
-                  {/* <div className="font-mono text-xs bg-gray-100 dark:bg-gray-800 p-2 rounded break-all">
-                    {timeline.transactionId}
-                  </div> */}
+                   <div className="flex items-start gap-2">
                   
-                  <CopyableValue value={timeline.stctx_ext_id} />
+                  <div className="font-mono text-xs bg-gray-100 dark:bg-gray-800 p-3 rounded-lg break-all border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 flex-1">
+                    {timeline.stctx_ext_id}
+                  </div>
+                  <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-9 w-9 p-0 flex-shrink-0"
+                      onClick={() => copyToClipboard(timeline.stctx_ext_id, 'Transaction Id')}
+                    >
+                      <Copy className="h-4 w-4" />
+                    </Button>
+                    </div>
+                
+
+               
                 </div>
                 <div>
                   <div className="text-gray-600 mb-1">
                     Blockchain Hash
                   </div>
-                  {/* <div className="font-mono text-xs bg-gray-100 dark:bg-gray-800 p-2 rounded break-all">
-                    {timeline.stctx_ext_id}
-                  </div> */}
-                  <CopyableValue value={timeline.transactionId} />
+
+                  <div className="flex items-start gap-2">
+                  <div className="font-mono text-xs bg-gray-100 dark:bg-gray-800 p-3 rounded-lg break-all border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 flex-1">
+                    {timeline.transactionId}
+                  </div>
+
+                   <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-9 w-9 p-0 flex-shrink-0"
+                      onClick={() => copyToClipboard(timeline.transactionId, 'Fabric hash')}
+                    >
+                      <Copy className="h-4 w-4" />
+                    </Button>
+                    </div>
                   
+             
+
 
                 </div>
               </div>
@@ -390,3 +419,5 @@ export function TransactionDetailDrawer({
     </Sheet>
   );
 }
+
+ 
